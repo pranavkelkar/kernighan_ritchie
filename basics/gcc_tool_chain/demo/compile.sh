@@ -1,3 +1,6 @@
+#! /bin/bash
+#compile hello_world.c
+
 #precompiler
 cpp hello_world.c > hello_world.i
 #compiler
