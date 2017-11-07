@@ -1,0 +1,23 @@
+//why does function foo return some int value when return value is not explicitly specified ?
+#include<stdio.h>
+
+int foo(void);
+
+int main()
+{
+        int a;
+
+        printf("hello, world\n");
+        a = foo();
+        printf("a : %d\n",a);
+
+        return 0;
+}
+
+int foo(void)
+{
+        printf("foo\n");
+        return;
+        //or without any return statement, this function returns some int value
+}
+----------------------------------------------------------------------------------------------------------------------
