@@ -1,0 +1,95 @@
+Files:
+---bar.c---
+#include<stdio.h>
+void bar(void)
+{
+        printf("Hello, I'm a shared library\n");
+}
+
+
+---bar.h---
+#ifndef bar_h__
+#define bar_h__
+extern void bar(void);
+#endif //bar_h__
+
+
+---main.c---
+#include<stdio.h>
+#include "bar.h"
+ 
+int main(void)
+{
+        printf("This is a shared library test...\n");
+        bar();
+        return 0;
+}
+--------------------------------------------------------------
+ls 
+bar.c bar.h main.c
+
+Steps:
+1. Compiling with position independent code
+(fpic : Generate position independent code suitable for use in shared libraries)
+gcc -c -Wall -Werror -fpic bar.c
+
+ls
+bar.c bar.h main.c bar.o
+ 
+2. Creating shared library from an object file
+shared : Produce a shared object which can be linked with other executables to form a executable.
+gcc -shared -o libbar.so bar.o
+
+ls
+bar.c bar.h main.c bar.o libbar.so 
+ 
+3. Linking with a shared library
+gcc -Wall -o test main.c -lbar
+/usr/bin/ld: cannot find -lbar
+collect2: ld returned 1 exit status
+ 
+4. Linking with a shared library - providing path
+gcc -L//home/pranav/w2/kernighan_ritchie/basics/dynamic_library -Wall -o test main.c -lbar
+
+ls
+bar.c bar.h main.c bar.o libbar.so test
+ 
+5. Running the executable
+./test
+./test: error while loading shared libraries: libbar.so: cannot open shared object file: No such file or directory
+ 
+6. Making the library available at runtime
+echo $LD_LIBRARY_PATH
+LD_LIBRARY_PATH=/home/pranav/w2/kernighan_ritchie/basics/dynamic_library:$LD_LIBRARY_PATH // wont work - need to export
+export LD_LIBRARY_PATH=/home/pranav/w2/kernighan_ritchie/basics/dynamic_library:$LD_LIBRARY_PATH
+ 
+7. ./test
+(works)
+ 
+8. Using rpath
+unset LD_LIBRARY_PATH
+echo $LD_LIBRARY_PATH //cross checking
+./test
+./test: error while loading shared libraries: libbar.so: cannot open shared object file: No such file or directory
+ 
+gcc -L/home/pranav/w2/kernighan_ritchie/basics/dynamic_library -Wl,-rpath=/home/pranav/w2/kernighan_ritchie/basics/dynamic_library -Wall -o test main.c -lbar
+./test
+(works)
+ 
+9. Making it available for everyone on the system
+sudo cp ./libbar.so /usr/lib
+sudo chmod 0755 /usr/lib/libbar.so
+ 
+10. Tell the loader it is available for use - update the cache
+sudo ldconfig //configure dynamic linker run time bindings
+ 
+11. Double check
+ldconfig -p
+ldconfig -p | grep libbar.so
+ 
+12. Compile
+gcc -Wall -o test main.c -lbar
+ 
+13. Run
+./test
+(works)
