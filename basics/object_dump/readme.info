@@ -1,0 +1,11 @@
+gcc -g -c add.c
+objdump -d -M intel -S add.o
+
+gcc
+-g  Produce debugging information in the operating system’s native format (stabs, COFF, XCOFF, or DWARF).
+
+objdump
+-d disassemble
+-S source
+-M intel
+
