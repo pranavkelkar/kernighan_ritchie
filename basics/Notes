@@ -21,3 +21,164 @@ int foo(void)
         //or without any return statement, this function returns some int value
 }
 ----------------------------------------------------------------------------------------------------------------------
+sort.c
+#include<stdio.h>
+#include<string.h>
+
+#define MAXLINES 5000	
+
+//global variables
+char *lineptr[MAXLINES];
+
+//function declarations
+extern int readlines(char *lineptr[], int nlines);
+extern void writelines(char *lineptr[], int nlines);
+extern void qsort(char *lineptr[], int low, int high);
+
+//sort input lines
+int main()
+{
+	int nlines; //number of input lines read
+	int i;	
+	if((nlines = readlines(lineptr, MAXLINES)) >= 0)
+	{
+		printf("nlines : %d\n",nlines);
+		qsort(lineptr,0,nlines-1);
+		writelines(lineptr,nlines);
+		return 0;
+	}
+	else
+	{
+		printf("error :  input too big to sort\n");
+		return 1;
+	}		
+}
+quick_sort.c
+
+void qsort(char *a[],int low, int high)
+{
+	int pivot;
+	if(high > low)
+	{
+		pivot = partition(a,low,high);
+		qsort(a,0,pivot-1);
+		qsort(a,pivot+1,high);
+	}
+	
+}
+
+int partition(char *a[], int low, int high)
+{
+	int left, right, i , j;
+	char *pivot, *temp;
+	left = low;
+	right = high;
+	pivot =  a[low];
+	while(left < right)
+	{
+		while(a[left] <= pivot && left<= high)
+		left ++;
+	
+		while(a[right] > pivot && right >= low)
+		right --;
+
+		if(left < right) //swap
+		{
+			temp = a[right];
+			a[right] = a[left];
+			a[left] = temp;
+		}
+	}
+	a[low] = a[right];
+	a[right] = pivot;
+	return right;
+}
+
+mystrcpy.c
+//mystrcpy: copy t to s ; pointer version 3
+void mystrcpy(char *s, char *t)
+{
+	while(*s++ = *t++)
+	;
+}
+
+mygetline.c
+#include<stdio.h>
+
+//mygetline: read a line into s, return length
+int mygetline(char s[], int lim)
+{
+	int c, i;
+	for(i=0; i<lim-1 && (c = getchar()) != EOF && c != '\n' ; i++)
+		s[i] = c;
+	if(c == '\n')
+	{
+		s[i] = c;
+		i++;
+	}
+	s[i] = '\0';
+	return i;
+}	
+line_operations.c
+#include<stdio.h>
+#define MAXLEN 1000 //max length of any input line
+
+//function prototypes
+extern int mygetline(char *, int);
+extern char *alloc(int);
+extern void mystrcpy(char *, char *);
+
+//readlines: read input lines
+int readlines(char *lineptr[], int maxlines)
+{
+	int len, nlines;
+	char *p, line[MAXLEN];
+	
+	nlines = 0;
+	while((len = mygetline(line, MAXLEN)) > 0)
+	{
+		if(nlines >= maxlines || (p = alloc(len)) == NULL)
+			return -1;
+		else
+		{
+			line[len-1] = '\0'; /* delete newline */
+			mystrcpy(line,p); // mystrcpy(source, destination)
+			printf("line : %s\n",line);
+			lineptr[nlines++] = p;			
+		}
+	}
+	return nlines;
+}
+
+/*writelines : write output lines */
+void writelines(char *lineptr[], int nlines)
+{
+	int i;
+	for (i=0; i < nlines; i++)
+		printf("%s\n", lineptr[i]);
+}
+alloc.c
+#define ALLOCSIZE 10000 /* size of available space */
+
+static char allocbuf[ALLOCSIZE]; /* storage for alloc */
+static char *allocp = allocbuf;  /* next free position */
+
+char *alloc(int n) /* return pointer to n characters */
+{
+	if(allocbuf + ALLOCSIZE - allocp >= n) /* it fits */
+	{
+		allocp += n;
+		return allocp - n; /* old p */
+	}	
+	else	/* not enough room */
+	{
+		return 0;
+	}
+		
+}
+
+int afree(char *p) /* free storage provided to by p */
+{
+	if( p >= allocbuf && p < allocbuf + ALLOCSIZE)
+	allocp = p;
+}
